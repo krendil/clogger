@@ -88,9 +88,27 @@ public auto stdoutClogger(string newName, LogLevel lv) {
     return clogger(stdout.lockingTextWriter, newName, lv);
 }
 
+
+public auto multiClogger(string newName, LogLevel lv, Logger[] logs...) {
+    import std.range : only;
+
+    struct Logiplexer {
+        Logger[] logs;
+
+        public void put(Logger.LoggerPayload e) {
+            foreach(log; logs) {
+                log.writeLogMsg(e);
+            }
+        }
+    }
+
+    return clogger!(only)(Logiplexer(logs), newName, lv);
+}
+
 unittest {
 
     import std.algorithm, std.range, std.array;
+    import std.stdio;
 
     auto log = stdoutClogger("clogTest", LogLevel.all);
 
@@ -122,4 +140,15 @@ unittest {
     pickyLog.warning(testMsg2);
     assert( buf[].startsWith(testMsg2), "Filter failed when it shouldn't have" );
 
+
+    buf[].initializeAll();
+    dchar[100] buf2;
+
+    auto multiLog = multiClogger("multiClogger", LogLevel.all,
+                                 clogger!(p => p.msg)(buf[], "a", LogLevel.all),
+                                 clogger!(p => p.msg)(buf2[], "b", LogLevel.all));
+
+    multiLog.warning(testMsg);
+    assert( buf[].startsWith(testMsg), "Failed to multiplex to first output" );
+    assert( buf2[].startsWith(testMsg), "Failed to multiplex to second output" );
 }
