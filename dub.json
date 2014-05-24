@@ -1,0 +1,11 @@
+{
+	"name": "clogger",
+	"description": "A customisable, component-based logger (experimental)",
+	"copyright": "Copyright © 2014, David Osborne",
+	"authors": ["David Osborne"],
+	"dependencies": {
+        "logger" : "~master"
+	},
+    "version" : "0.1.0",
+    "license" : "MIT"
+}

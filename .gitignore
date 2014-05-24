@@ -1,0 +1,4 @@
+*.swp
+__test__library__
+*.a
+.dub
